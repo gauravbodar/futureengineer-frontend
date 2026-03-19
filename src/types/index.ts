@@ -22,6 +22,15 @@ export interface Project {
   published: boolean
 }
 
+export interface ChildProfile {
+  id: string          // child's auth user_id — used to query projects, skills, etc.
+  username: string
+  tier: Tier
+  streakCount: number
+  lastActive: string
+  avatarUrl: string | null
+}
+
 export interface PortfolioEntry {
   id: string
   projectId: string

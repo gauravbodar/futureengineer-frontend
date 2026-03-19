@@ -71,6 +71,15 @@ export function verifyPayment(sessionId: string) {
   return post<{ active: boolean; plan: string }>('/api/verify-payment', { sessionId })
 }
 
+// ── Echo weekly report ────────────────────────────────────────────────────────
+
+export function sendWeeklyReport(childId: string, parentEmail: string) {
+  return post<{ sent: boolean }>('/api/agents/echo/weekly-report', {
+    childId,
+    parentEmail,
+  })
+}
+
 // ── Portfolio ─────────────────────────────────────────────────────────────────
 
 export function generatePortfolio(projectId: string, userId: string) {
