@@ -29,6 +29,7 @@ export default function AssessPage() {
   }
 
   const handleSubmit = () => {
+    if (selected.length === 0) return
     setAge(age)
     setInterests(selected)
     navigate('/assess/questions')
@@ -105,10 +106,9 @@ export default function AssessPage() {
           {/* CTA */}
           <button
             onClick={handleSubmit}
-            disabled={selected.length === 0}
-            className="w-full py-4 rounded-xl bg-teal text-white font-body font-bold text-lg transition-all hover:bg-teal-light hover:scale-[1.01] disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:scale-100 shadow-lg shadow-teal/20"
+            className={`w-full py-4 rounded-xl bg-teal text-white font-body font-bold text-lg transition-all hover:bg-teal-light hover:scale-[1.01] shadow-lg shadow-teal/20 ${selected.length === 0 ? 'opacity-40 cursor-not-allowed hover:scale-100' : ''}`}
           >
-            Find out what I should build →
+            Start the Assessment →
           </button>
         </div>
 

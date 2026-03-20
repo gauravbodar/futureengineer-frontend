@@ -59,6 +59,7 @@ export default function App() {
 
         {/* Parent dashboard */}
         <Route path="/parent" element={<ParentDashboard />} />
+        <Route path="/parent/dashboard" element={<ParentDashboard />} />
         <Route path="/parent/progress" element={<ProgressPage />} />
         <Route path="/parent/settings" element={<SettingsPage />} />
 

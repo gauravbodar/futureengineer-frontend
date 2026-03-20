@@ -47,6 +47,7 @@ export default function HeroSection() {
         <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <Link
             to="/assess"
+            role="button"
             className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-8 py-4 rounded-xl bg-teal font-body font-semibold text-white text-lg transition-all hover:bg-teal-light hover:scale-105 shadow-lg shadow-teal/20"
           >
             Take the Creator Assessment — Free
