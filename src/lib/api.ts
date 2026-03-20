@@ -22,11 +22,31 @@ export interface Question {
   options?: string[]
 }
 
+// Shape returned by the backend before normalisation
+interface BackendQuestion {
+  id: string
+  question: string          // backend field name
+  question_type: 'multiple_choice' | 'yes_no'
+  options?: string[]
+  correct_answer?: string
+  why_correct?: string
+  hint?: string
+  time_limit_seconds?: number
+}
+
 export function generateQuestions(age: number, interests: string[]) {
-  return post<{ questions: Question[] }>(
+  return post<{ session_id: string; questions: BackendQuestion[] }>(
     '/api/generate-questions',
     { age, interests }
-  )
+  ).then((data) => ({
+    session_id: data.session_id,
+    questions: data.questions.map((q): Question => ({
+      id: q.id,
+      text: q.question,   // normalise "question" → "text"
+      type: q.question_type === 'multiple_choice' ? 'choice' : 'text',
+      options: q.options,
+    })),
+  }))
 }
 
 export function scoreAnswers(answers: { questionId: string; answer: string }[]) {
