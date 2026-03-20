@@ -27,6 +27,7 @@ interface AssessState {
   tier: string | null
   report: Report | null
   topProjectIdea: string
+  sessionId: string | null
 
   setAge: (age: number) => void
   setInterests: (interests: string[]) => void
@@ -35,6 +36,7 @@ interface AssessState {
   setTier: (tier: string) => void
   setReport: (report: Report) => void
   setTopProjectIdea: (idea: string) => void
+  setSessionId: (id: string) => void
   clearAssessment: () => void
 }
 
@@ -46,6 +48,7 @@ const initialState = {
   tier: null,
   report: null,
   topProjectIdea: '',
+  sessionId: null,
 }
 
 export const useAssessStore = create<AssessState>((set) => ({
@@ -64,5 +67,6 @@ export const useAssessStore = create<AssessState>((set) => ({
   setTier: (tier) => set({ tier }),
   setReport: (report) => set({ report }),
   setTopProjectIdea: (idea) => set({ topProjectIdea: idea }),
+  setSessionId: (id) => set({ sessionId: id }),
   clearAssessment: () => set(initialState),
 }))

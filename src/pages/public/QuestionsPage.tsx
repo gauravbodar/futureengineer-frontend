@@ -5,7 +5,7 @@ import { generateQuestions, type Question } from '../../lib/api'
 
 export default function QuestionsPage() {
   const navigate = useNavigate()
-  const { age, interests, addAnswer } = useAssessStore()
+  const { age, interests, addAnswer, setSessionId } = useAssessStore()
 
   const [questions, setQuestions] = useState<Question[]>([])
   const [currentIdx, setCurrentIdx] = useState(0)
@@ -26,7 +26,10 @@ export default function QuestionsPage() {
     if (age === null || interests.length === 0) return
 
     generateQuestions(age, interests)
-      .then((data) => setQuestions(data.questions))
+      .then((data) => {
+        setSessionId(data.session_id)
+        setQuestions(data.questions)
+      })
       .catch(() => setError('Could not load questions. Please try again.'))
       .finally(() => setLoading(false))
   }, []) // eslint-disable-line react-hooks/exhaustive-deps

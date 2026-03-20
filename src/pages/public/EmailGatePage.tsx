@@ -10,6 +10,7 @@ export default function EmailGatePage() {
     age,
     interests,
     answers,
+    sessionId,
     setEmail,
     setTier,
     setReport,
@@ -43,16 +44,33 @@ export default function EmailGatePage() {
       // a. Persist email
       setEmail(email)
 
-      // b. Score answers
-      const { tier, scores } = await scoreAnswers(answers)
-      setTier(tier)
+      // b. Score answers — send all required fields
+      const scored = await scoreAnswers({
+        sessionId: sessionId ?? '',
+        age: age ?? 13,
+        interests,
+        answers,
+      })
+      setTier(scored.tier)
 
-      // c. Generate report
-      const report = await generateReport(scores, age ?? 13, interests)
-      setReport(report)
+      // c. Generate full report
+      const reportData = await generateReport(scored, age ?? 13, interests)
 
-      // d. Derive topProjectIdea from first project idea title
-      const topIdea = report.projectIdeas?.[0]?.title ?? ''
+      // d. Merge into the Report shape the store and ResultsPage expect
+      setReport({
+        tier: scored.tier,
+        headline: reportData.headline,
+        projectIdeas: scored.project_ideas.map((p) => ({
+          title: p.title,
+          description: p.description,
+          timeEstimate: p.time_estimate,
+        })),
+        skills: reportData.skills_to_earn,
+        firstStep: reportData.first_step,
+      })
+
+      // e. Derive topProjectIdea from first project idea title
+      const topIdea = scored.project_ideas[0]?.title ?? ''
       setTopProjectIdea(topIdea)
 
       // e. Fire-and-forget nurture — do NOT await

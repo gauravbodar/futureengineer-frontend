@@ -49,25 +49,55 @@ export function generateQuestions(age: number, interests: string[]) {
   }))
 }
 
-export function scoreAnswers(answers: { questionId: string; answer: string }[]) {
-  return post<{ tier: string; scores: Record<string, number> }>(
-    '/api/score-answers',
-    { answers }
-  )
+interface BackendProjectIdea {
+  title: string
+  description: string
+  time_estimate: string
+  skills: string[]
 }
 
-export function generateReport(
-  scores: Record<string, number>,
-  age: number,
+interface ScoreAnswersResponse {
+  session_id: string
+  tier: string
+  score: number
+  score_out_of: number
+  strengths: string[]
+  project_ideas: BackendProjectIdea[]
+  creator_profile_summary: string
+}
+
+export function scoreAnswers(params: {
+  sessionId: string
+  age: number
   interests: string[]
-) {
+  answers: { questionId: string; answer: string }[]
+}) {
+  return post<ScoreAnswersResponse>('/api/score-answers', {
+    session_id: params.sessionId,
+    age: params.age,
+    interests: params.interests,
+    goal: 'build something cool',
+    answers: params.answers,
+  })
+}
+
+export function generateReport(scored: ScoreAnswersResponse, age: number, interests: string[]) {
   return post<{
+    session_id: string
     tier: string
     headline: string
-    projectIdeas: { title: string; description: string; timeEstimate: string }[]
-    skills: string[]
-    firstStep: string
-  }>('/api/generate-report', { scores, age, interests })
+    first_step: string
+    skills_to_earn: string[]
+    learning_path: { week: number; focus: string; project: string }[]
+    encouragement: string
+  }>('/api/generate-report', {
+    session_id: scored.session_id,
+    tier: scored.tier,
+    age,
+    interests,
+    project_ideas: scored.project_ideas,
+    creator_profile_summary: scored.creator_profile_summary,
+  })
 }
 
 /** Fire-and-forget — call without await */
