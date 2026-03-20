@@ -74,7 +74,7 @@ export default function EmailGatePage() {
       setTopProjectIdea(topIdea)
 
       // e. Fire-and-forget nurture — do NOT await
-      scheduleNurture(email, tier, topIdea)
+      scheduleNurture(email, scored.tier, topIdea)
 
       // f. Route to results
       navigate('/assess/results')
