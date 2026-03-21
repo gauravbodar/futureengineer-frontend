@@ -45,8 +45,9 @@ export default function EmailGatePage() {
       setEmail(email)
 
       // b. Score answers — send all required fields
+      if (!sessionId) throw new Error('Session ID missing — please restart the assessment.')
       const scored = await scoreAnswers({
-        sessionId: sessionId ?? '',
+        sessionId,
         age: age ?? 13,
         interests,
         answers,

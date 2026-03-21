@@ -70,15 +70,19 @@ export function scoreAnswers(params: {
   sessionId: string
   age: number
   interests: string[]
+  goal?: string
   answers: { questionId: string; answer: string }[]
 }) {
-  return post<ScoreAnswersResponse>('/api/score-answers', {
+  const payload = {
     session_id: params.sessionId,
     age: params.age,
     interests: params.interests,
-    goal: 'build something cool',
-    answers: params.answers,
-  })
+    goal: params.goal ?? 'build something cool',
+    // map camelCase questionId → snake_case question_id to match backend spec
+    answers: params.answers.map((a) => ({ question_id: a.questionId, answer: a.answer })),
+  }
+  console.log('[scoreAnswers] payload:', JSON.stringify(payload, null, 2))
+  return post<ScoreAnswersResponse>('/api/score-answers', payload)
 }
 
 export function generateReport(scored: ScoreAnswersResponse, age: number, interests: string[]) {
