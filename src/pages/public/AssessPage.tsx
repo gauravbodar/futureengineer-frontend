@@ -2,38 +2,26 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAssessStore } from '../../store/assessStore'
 
-const INTERESTS = [
-  'Games',
-  'Mobile apps',
-  'AI tools',
-  'Stories',
-  'Simulations',
-  'SaaS',
-]
-
 export default function AssessPage() {
   const navigate = useNavigate()
-  const { setAge, setInterests } = useAssessStore()
+  const { setAge } = useAssessStore()
 
   const [age, setLocalAge] = useState(13)
-  const [selected, setSelected] = useState<string[]>([])
-
-  const toggleInterest = (interest: string) => {
-    setSelected((prev) =>
-      prev.includes(interest)
-        ? prev.filter((i) => i !== interest)
-        : prev.length < 3
-        ? [...prev, interest]
-        : prev
-    )
-  }
 
   const handleSubmit = () => {
-    if (selected.length === 0) return
     setAge(age)
-    setInterests(selected)
     navigate('/assess/questions')
   }
+
+  const tierLabel =
+    age <= 11 ? 'Spark' : age <= 14 ? 'Maker' : 'Creator'
+
+  const tierDescription =
+    age <= 11
+      ? 'Ages 8–11 · Games, stories, and first builds'
+      : age <= 14
+      ? 'Ages 12–14 · Websites, apps, and real projects'
+      : 'Ages 15–18 · AI tools, products, and real launches'
 
   return (
     <div className="min-h-screen bg-off-white flex flex-col items-center justify-center px-6 py-16">
@@ -57,7 +45,7 @@ export default function AssessPage() {
 
         <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-8 flex flex-col gap-10">
 
-          {/* Age slider */}
+          {/* Age slider — Q1 */}
           <div>
             <label className="font-body font-semibold text-navy text-base mb-4 block">
               How old are you?
@@ -75,40 +63,21 @@ export default function AssessPage() {
               <span>8</span>
               <span>18</span>
             </div>
-          </div>
 
-          {/* Interest chips */}
-          <div>
-            <label className="font-body font-semibold text-navy text-base mb-1 block">
-              What do you want to build?
-            </label>
-            <p className="font-body text-gray-400 text-sm mb-4">Pick up to 3.</p>
-            <div className="flex flex-wrap gap-3">
-              {INTERESTS.map((interest) => {
-                const active = selected.includes(interest)
-                return (
-                  <button
-                    key={interest}
-                    onClick={() => toggleInterest(interest)}
-                    className={`px-4 py-2 rounded-full border text-sm font-body font-semibold transition-all ${
-                      active
-                        ? 'bg-teal text-white border-teal shadow-sm shadow-teal/20'
-                        : 'bg-white text-navy border-gray-200 hover:border-teal/50 hover:text-teal'
-                    }`}
-                  >
-                    {interest}
-                  </button>
-                )
-              })}
+            {/* Tier preview */}
+            <div className="mt-4 px-4 py-3 rounded-xl bg-teal/5 border border-teal/20 flex items-center gap-3">
+              <span className="font-body font-bold text-teal text-sm">{tierLabel}</span>
+              <span className="text-gray-300">·</span>
+              <span className="font-body text-gray-500 text-sm">{tierDescription}</span>
             </div>
           </div>
 
           {/* CTA */}
           <button
             onClick={handleSubmit}
-            className={`w-full py-4 rounded-xl bg-teal text-white font-body font-bold text-lg transition-all hover:bg-teal-light hover:scale-[1.01] shadow-lg shadow-teal/20 ${selected.length === 0 ? 'opacity-40 cursor-not-allowed hover:scale-100' : ''}`}
+            className="w-full py-4 rounded-xl bg-teal text-white font-body font-bold text-lg transition-all hover:bg-teal-light hover:scale-[1.01] shadow-lg shadow-teal/20"
           >
-            Start the Assessment →
+            Next →
           </button>
         </div>
 

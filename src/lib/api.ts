@@ -59,6 +59,7 @@ interface BackendProjectIdea {
 interface ScoreAnswersResponse {
   session_id: string
   tier: string
+  readiness: 'high' | 'medium' | 'low'
   score: number
   score_out_of: number
   strengths: string[]

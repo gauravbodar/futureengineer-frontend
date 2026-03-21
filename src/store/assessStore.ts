@@ -22,18 +22,22 @@ export interface Report {
 interface AssessState {
   age: number | null
   interests: string[]
+  goal: string
   answers: Answer[]
   email: string
   tier: string | null
+  readiness: 'high' | 'medium' | 'low' | null
   report: Report | null
   topProjectIdea: string
   sessionId: string | null
 
   setAge: (age: number) => void
   setInterests: (interests: string[]) => void
+  setGoal: (goal: string) => void
   addAnswer: (answer: Answer) => void
   setEmail: (email: string) => void
   setTier: (tier: string) => void
+  setReadiness: (readiness: 'high' | 'medium' | 'low') => void
   setReport: (report: Report) => void
   setTopProjectIdea: (idea: string) => void
   setSessionId: (id: string) => void
@@ -43,9 +47,11 @@ interface AssessState {
 const initialState = {
   age: null,
   interests: [],
+  goal: '',
   answers: [],
   email: '',
   tier: null,
+  readiness: null,
   report: null,
   topProjectIdea: '',
   sessionId: null,
@@ -56,6 +62,7 @@ export const useAssessStore = create<AssessState>((set) => ({
 
   setAge: (age) => set({ age }),
   setInterests: (interests) => set({ interests }),
+  setGoal: (goal) => set({ goal }),
   addAnswer: (answer) =>
     set((state) => ({
       answers: [
@@ -65,6 +72,7 @@ export const useAssessStore = create<AssessState>((set) => ({
     })),
   setEmail: (email) => set({ email }),
   setTier: (tier) => set({ tier }),
+  setReadiness: (readiness) => set({ readiness }),
   setReport: (report) => set({ report }),
   setTopProjectIdea: (idea) => set({ topProjectIdea: idea }),
   setSessionId: (id) => set({ sessionId: id }),

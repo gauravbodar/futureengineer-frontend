@@ -9,10 +9,12 @@ export default function EmailGatePage() {
   const {
     age,
     interests,
+    goal,
     answers,
     sessionId,
     setEmail,
     setTier,
+    setReadiness,
     setReport,
     setTopProjectIdea,
   } = useAssessStore()
@@ -50,9 +52,11 @@ export default function EmailGatePage() {
         sessionId,
         age: age ?? 13,
         interests,
+        goal: goal || 'build something cool',
         answers,
       })
       setTier(scored.tier)
+      setReadiness(scored.readiness)
 
       // c. Generate full report
       const reportData = await generateReport(scored, age ?? 13, interests)
@@ -74,10 +78,10 @@ export default function EmailGatePage() {
       const topIdea = scored.project_ideas[0]?.title ?? ''
       setTopProjectIdea(topIdea)
 
-      // e. Fire-and-forget nurture — do NOT await
+      // f. Fire-and-forget nurture — do NOT await
       scheduleNurture(email, scored.tier, topIdea)
 
-      // f. Route to results
+      // g. Route to results
       navigate('/assess/results')
     } catch {
       setError('Something went wrong. Please try again.')

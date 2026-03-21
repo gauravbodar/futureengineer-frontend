@@ -4,28 +4,53 @@ import { useAssessStore } from '../../store/assessStore'
 import { createCheckout } from '../../lib/api'
 
 const TIER_STYLES: Record<string, { badge: string; bg: string; label: string }> = {
-  Spark: {
+  spark: {
     badge: 'bg-amber/10 text-amber border border-amber/30',
     bg: 'bg-amber/5',
     label: '⚡ Spark',
   },
-  Maker: {
+  maker: {
     badge: 'bg-teal/10 text-teal border border-teal/30',
     bg: 'bg-teal/5',
     label: '🔧 Maker',
   },
-  Creator: {
+  creator: {
     badge: 'bg-navy text-white border border-navy',
     bg: 'bg-navy/5',
     label: '🚀 Creator',
   },
 }
 
-const DEFAULT_TIER = 'Creator'
+const DEFAULT_TIER = 'maker'
+
+// Upsell copy varies by readiness signal
+const UPSELL_COPY = {
+  high: {
+    eyebrow: 'Your build plan is ready.',
+    headline: 'Start building today',
+    urgency: 'Your build plan is ready. Start now.',
+    cta: 'Start building today →',
+    trust: 'Takes 5 minutes to set up · Cancel anytime',
+  },
+  medium: {
+    eyebrow: 'Ready to start?',
+    headline: 'Start building today',
+    urgency: null,
+    cta: 'Start building now →',
+    trust: 'Cancel anytime · No commitment · Takes 5 minutes to set up',
+  },
+  low: {
+    eyebrow: 'When you\'re ready',
+    headline: 'Explore Creator Pro',
+    urgency: null,
+    cta: 'See what\'s included →',
+    trust: 'Your 7-day build plan is on its way to your inbox.',
+  },
+}
 
 export default function ResultsPage() {
   const navigate = useNavigate()
-  const { report, tier, email } = useAssessStore()
+  const { report, tier, readiness, email } = useAssessStore()
 
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
@@ -39,8 +64,10 @@ export default function ResultsPage() {
 
   if (!report) return null
 
-  const tierKey = tier ?? DEFAULT_TIER
+  const tierKey = (tier ?? DEFAULT_TIER).toLowerCase()
   const tierStyle = TIER_STYLES[tierKey] ?? TIER_STYLES[DEFAULT_TIER]
+  const readinessKey = readiness ?? 'medium'
+  const upsell = UPSELL_COPY[readinessKey]
 
   const handleStartBuilding = async () => {
     setCheckoutLoading(true)
@@ -150,12 +177,20 @@ export default function ResultsPage() {
 
               {/* Heading */}
               <div>
-                <p className="font-body text-teal-light font-semibold text-xs uppercase tracking-widest mb-2">
-                  Ready to start?
+                <p className={`font-body font-semibold text-xs uppercase tracking-widest mb-2 ${
+                  readinessKey === 'high' ? 'text-amber-light' : 'text-teal-light'
+                }`}>
+                  {upsell.eyebrow}
                 </p>
                 <h2 className="font-display font-extrabold text-white text-2xl leading-tight">
-                  Start building today
+                  {upsell.headline}
                 </h2>
+                {/* Urgency line — only for high readiness */}
+                {upsell.urgency && (
+                  <p className="font-body text-amber-light text-sm font-semibold mt-2">
+                    {upsell.urgency}
+                  </p>
+                )}
               </div>
 
               {/* Price */}
@@ -189,15 +224,19 @@ export default function ResultsPage() {
               <button
                 onClick={handleStartBuilding}
                 disabled={checkoutLoading}
-                className="w-full py-4 rounded-xl bg-teal-light text-white font-body font-bold text-base transition-all hover:bg-teal disabled:opacity-50 disabled:cursor-not-allowed"
+                className={`w-full py-4 rounded-xl font-body font-bold text-base transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                  readinessKey === 'high'
+                    ? 'bg-amber-light text-navy hover:opacity-90'
+                    : 'bg-teal-light text-white hover:bg-teal'
+                }`}
               >
                 {checkoutLoading ? (
                   <span className="flex items-center justify-center gap-2">
-                    <span className="w-4 h-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
+                    <span className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
                     Loading…
                   </span>
                 ) : (
-                  'Start building now →'
+                  upsell.cta
                 )}
               </button>
 
@@ -205,10 +244,9 @@ export default function ResultsPage() {
                 <p className="text-red-400 text-xs font-body text-center">{checkoutError}</p>
               )}
 
-              {/* Trust */}
+              {/* Trust line */}
               <p className="font-body text-white/40 text-xs text-center leading-relaxed">
-                Cancel anytime · No commitment ·<br />
-                Takes 5 minutes to set up
+                {upsell.trust}
               </p>
 
               <div className="border-t border-white/10 pt-4">
