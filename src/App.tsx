@@ -16,6 +16,7 @@ import SignupPage from './pages/auth/SignupPage'
 import OnboardingPage from './pages/auth/OnboardingPage'
 import SetupAccountPage from './pages/auth/SetupAccountPage'
 import CheckoutSuccessPage from './pages/auth/CheckoutSuccessPage'
+import LogoutPage from './pages/auth/LogoutPage'
 
 // Kid pages
 import DashboardPage from './pages/kid/DashboardPage'
@@ -53,6 +54,7 @@ export default function App() {
         <Route path="/onboarding" element={<OnboardingPage />} />
         <Route path="/auth/setup-account" element={<SetupAccountPage />} />
         <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
+        <Route path="/logout" element={<LogoutPage />} />
 
         {/* Kid dashboard */}
         <Route path="/dashboard" element={<DashboardPage />} />

@@ -1,4 +1,5 @@
-import { Link } from 'react-router-dom'
+import { useState } from 'react'
+import { Link, useLocation } from 'react-router-dom'
 
 const plans = [
   {
@@ -52,9 +53,28 @@ const plans = [
 ]
 
 export default function PricingPage() {
+  const location = useLocation()
+  const noticeFromState = (location.state as { notice?: string } | null)?.notice ?? null
+  const [notice, setNotice] = useState<string | null>(noticeFromState)
+
   return (
     <div className="min-h-screen bg-off-white py-20 px-6">
       <div className="max-w-5xl mx-auto">
+
+        {/* Subscription notice banner */}
+        {notice && (
+          <div className="mb-8 flex items-start gap-3 bg-amber/10 border border-amber/30 rounded-xl px-5 py-4">
+            <span className="text-amber mt-0.5 flex-shrink-0">⚠</span>
+            <p className="font-body text-amber text-sm flex-1 leading-relaxed">{notice}</p>
+            <button
+              onClick={() => setNotice(null)}
+              aria-label="Dismiss"
+              className="text-amber/60 hover:text-amber transition-colors font-body text-lg leading-none flex-shrink-0"
+            >
+              ×
+            </button>
+          </div>
+        )}
 
         {/* Header */}
         <div className="text-center mb-14">
