@@ -14,6 +14,8 @@ import PortfolioPage from './pages/public/PortfolioPage'
 import LoginPage from './pages/auth/LoginPage'
 import SignupPage from './pages/auth/SignupPage'
 import OnboardingPage from './pages/auth/OnboardingPage'
+import SetupAccountPage from './pages/auth/SetupAccountPage'
+import CheckoutSuccessPage from './pages/auth/CheckoutSuccessPage'
 
 // Kid pages
 import DashboardPage from './pages/kid/DashboardPage'
@@ -49,6 +51,8 @@ export default function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/onboarding" element={<OnboardingPage />} />
+        <Route path="/auth/setup-account" element={<SetupAccountPage />} />
+        <Route path="/checkout/success" element={<CheckoutSuccessPage />} />
 
         {/* Kid dashboard */}
         <Route path="/dashboard" element={<DashboardPage />} />
