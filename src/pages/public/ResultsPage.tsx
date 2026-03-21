@@ -25,7 +25,7 @@ const DEFAULT_TIER = 'Creator'
 
 export default function ResultsPage() {
   const navigate = useNavigate()
-  const { report, tier } = useAssessStore()
+  const { report, tier, email } = useAssessStore()
 
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [checkoutError, setCheckoutError] = useState<string | null>(null)
@@ -46,7 +46,7 @@ export default function ResultsPage() {
     setCheckoutLoading(true)
     setCheckoutError(null)
     try {
-      const { url } = await createCheckout('creator_pro_monthly')
+      const { url } = await createCheckout('creator_pro', email)
       window.location.href = url
     } catch {
       setCheckoutError('Could not start checkout. Please try again.')

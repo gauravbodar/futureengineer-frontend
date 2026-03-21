@@ -113,8 +113,8 @@ export function scheduleNurture(
 
 // ── Checkout ──────────────────────────────────────────────────────────────────
 
-export function createCheckout(planId: string) {
-  return post<{ url: string }>('/api/create-checkout', { planId })
+export function createCheckout(plan: string, email: string) {
+  return post<{ url: string }>('/api/create-checkout', { plan, email })
 }
 
 export function verifyPayment(sessionId: string) {
