@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { Link, useLocation } from 'react-router-dom'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { useAssessStore } from '../../store/assessStore'
+import { createCheckout } from '../../lib/api'
 
 const plans = [
   {
@@ -15,7 +17,8 @@ const plans = [
       'Priority support',
     ],
     cta: 'Start Building',
-    ctaHref: '/assess',
+    planId: 'creator_pro' as const,
+    ctaHref: null,
     highlight: true,
   },
   {
@@ -31,7 +34,8 @@ const plans = [
       'Up to 3 children',
     ],
     cta: 'Get Started',
-    ctaHref: '/assess',
+    planId: 'family' as const,
+    ctaHref: null,
     highlight: false,
   },
   {
@@ -47,6 +51,7 @@ const plans = [
       'Dedicated onboarding',
     ],
     cta: 'Get a Demo',
+    planId: null,
     ctaHref: '/schools',
     highlight: false,
   },
@@ -54,8 +59,29 @@ const plans = [
 
 export default function PricingPage() {
   const location = useLocation()
+  const navigate = useNavigate()
+  const { email, tier } = useAssessStore()
   const noticeFromState = (location.state as { notice?: string } | null)?.notice ?? null
   const [notice, setNotice] = useState<string | null>(noticeFromState)
+  const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
+  const [checkoutError, setCheckoutError] = useState<string | null>(null)
+
+  const handlePaidCta = async (planId: 'creator_pro' | 'family') => {
+    setCheckoutError(null)
+    // If user hasn't done the assessment, send them there first
+    if (!email || !tier) {
+      navigate('/assess')
+      return
+    }
+    setLoadingPlan(planId)
+    try {
+      const { url } = await createCheckout(planId, email)
+      window.location.href = url
+    } catch {
+      setCheckoutError('Could not start checkout. Please try again.')
+      setLoadingPlan(null)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-off-white py-20 px-6">
@@ -140,19 +166,44 @@ export default function PricingPage() {
               </ul>
 
               {/* CTA */}
-              <Link
-                to={plan.ctaHref}
-                className={`mt-auto w-full py-3 rounded-xl font-body font-bold text-center text-sm transition-all ${
-                  plan.highlight
-                    ? 'bg-teal text-white hover:bg-teal-light shadow-md shadow-teal/30'
-                    : 'bg-navy text-white hover:bg-navy/90'
-                }`}
-              >
-                {plan.cta}
-              </Link>
+              {plan.planId ? (
+                <button
+                  onClick={() => handlePaidCta(plan.planId!)}
+                  disabled={loadingPlan === plan.planId}
+                  className={`mt-auto w-full py-3 rounded-xl font-body font-bold text-center text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
+                    plan.highlight
+                      ? 'bg-teal text-white hover:bg-teal-light shadow-md shadow-teal/30'
+                      : 'bg-navy text-white hover:bg-navy/90'
+                  }`}
+                >
+                  {loadingPlan === plan.planId ? (
+                    <span className="flex items-center justify-center gap-2">
+                      <span className="w-4 h-4 rounded-full border-2 border-current border-t-transparent animate-spin" />
+                      Loading…
+                    </span>
+                  ) : (
+                    plan.cta
+                  )}
+                </button>
+              ) : (
+                <Link
+                  to={plan.ctaHref!}
+                  className={`mt-auto w-full py-3 rounded-xl font-body font-bold text-center text-sm transition-all ${
+                    plan.highlight
+                      ? 'bg-teal text-white hover:bg-teal-light shadow-md shadow-teal/30'
+                      : 'bg-navy text-white hover:bg-navy/90'
+                  }`}
+                >
+                  {plan.cta}
+                </Link>
+              )}
             </div>
           ))}
         </div>
+
+        {checkoutError && (
+          <p className="text-center font-body text-red-500 text-sm mt-4">{checkoutError}</p>
+        )}
 
         {/* FAQ micro-copy */}
         <p className="text-center font-body text-gray-400 text-sm mt-10">
