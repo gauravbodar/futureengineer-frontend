@@ -78,8 +78,17 @@ export default function EmailGatePage() {
       const topIdea = scored.project_ideas[0]?.title ?? ''
       setTopProjectIdea(topIdea)
 
-      // f. Send results email — await so we can surface failures
-      await scheduleNurture(email, scored.tier, topIdea)
+      // f. Send results email with full report — await so we can surface failures
+      await scheduleNurture(email, scored.tier, {
+        topProjectIdea: topIdea,
+        projectIdeas: scored.project_ideas.map((p) => ({
+          title: p.title,
+          description: p.description,
+          timeEstimate: p.time_estimate,
+        })),
+        skills: reportData.skills_to_earn,
+        firstStep: reportData.first_step,
+      })
 
       // g. Route to results
       navigate('/assess/results')

@@ -106,12 +106,19 @@ export function generateReport(scored: ScoreAnswersResponse, age: number, intere
 }
 
 /** Fire-and-forget — call without await */
+export interface NurtureReport {
+  topProjectIdea: string
+  projectIdeas: { title: string; description: string; timeEstimate: string }[]
+  skills: string[]
+  firstStep: string
+}
+
 export async function scheduleNurture(
   email: string,
   tier: string,
-  topProjectIdea: string
+  report: NurtureReport
 ): Promise<void> {
-  await post('/api/schedule-nurture', { email, tier, topProjectIdea })
+  await post('/api/schedule-nurture', { email, tier, ...report })
 }
 
 // ── Checkout ──────────────────────────────────────────────────────────────────
