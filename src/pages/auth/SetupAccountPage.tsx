@@ -74,6 +74,7 @@ export default function SetupAccountPage() {
         },
       })
 
+      console.error('SignUp error:', signUpError)
       if (signUpError) {
         throw new Error(signUpError.message)
       }

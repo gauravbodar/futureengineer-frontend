@@ -12,6 +12,9 @@ const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string
 //
 // The Next.js portal must use the same NEXT_PUBLIC_SUPABASE_URL,
 // NEXT_PUBLIC_SUPABASE_ANON_KEY, and storageKey: 'futureengineer-auth'.
+console.log('Supabase URL:', import.meta.env.VITE_SUPABASE_URL)
+console.log('Anon key present:', !!import.meta.env.VITE_SUPABASE_ANON_KEY)
+
 export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
   auth: {
     storageKey: 'futureengineer-auth',
