@@ -95,8 +95,14 @@ export default function ResultsPage() {
 
         <div className="flex flex-col lg:flex-row gap-8 items-start">
 
-          {/* ── LEFT (60%) — Profile ─────────────────────────────────────────── */}
-          <div className="flex-1 flex flex-col gap-6">
+          {/* ── LEFT (60%) — Profile (blurred) + overlay ─────────────────────── */}
+          <div className="flex-1 relative">
+
+            {/* Blurred content */}
+            <div
+              className="flex flex-col gap-6"
+              style={{ filter: 'blur(4px)', pointerEvents: 'none', userSelect: 'none' }}
+            >
 
             {/* Tier badge + headline */}
             <div className={`rounded-2xl border p-8 ${tierStyle.bg}`}>
@@ -169,7 +175,32 @@ export default function ResultsPage() {
                 </p>
               </div>
             )}
-          </div>
+            </div>{/* end blurred content */}
+
+            {/* ── Overlay card — centred over blurred left column ── */}
+            <div className="absolute inset-0 flex items-center justify-center px-4">
+              <div className="bg-white rounded-2xl border border-gray-100 shadow-xl p-8 max-w-sm w-full text-center">
+                <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-teal/10 mb-5">
+                  <span className="text-3xl">📬</span>
+                </div>
+                <h2 className="font-display font-extrabold text-navy text-xl mb-3 leading-tight">
+                  Your Creator Profile is on its way
+                </h2>
+                <p className="font-body text-gray-500 text-sm leading-relaxed mb-5">
+                  We've sent your full results to{' '}
+                  <span className="font-semibold text-navy">{email}</span>.
+                  Check your inbox — it usually arrives in under a minute.
+                </p>
+                <a
+                  href="/assess"
+                  className="font-body text-teal text-sm font-semibold hover:text-teal-light transition-colors"
+                >
+                  Wrong email? Start over →
+                </a>
+              </div>
+            </div>
+
+          </div>{/* end flex-1 relative */}
 
           {/* ── RIGHT (40%) — Upsell card ────────────────────────────────────── */}
           <div className="w-full lg:w-80 flex-shrink-0">

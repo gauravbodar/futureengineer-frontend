@@ -106,14 +106,12 @@ export function generateReport(scored: ScoreAnswersResponse, age: number, intere
 }
 
 /** Fire-and-forget — call without await */
-export function scheduleNurture(
+export async function scheduleNurture(
   email: string,
   tier: string,
   topProjectIdea: string
-): void {
-  post('/api/schedule-nurture', { email, tier, topProjectIdea }).catch(() => {
-    // intentional no-op — nurture failure must never block the UI
-  })
+): Promise<void> {
+  await post('/api/schedule-nurture', { email, tier, topProjectIdea })
 }
 
 // ── Checkout ──────────────────────────────────────────────────────────────────

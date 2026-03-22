@@ -78,13 +78,18 @@ export default function EmailGatePage() {
       const topIdea = scored.project_ideas[0]?.title ?? ''
       setTopProjectIdea(topIdea)
 
-      // f. Fire-and-forget nurture — do NOT await
-      scheduleNurture(email, scored.tier, topIdea)
+      // f. Send results email — await so we can surface failures
+      await scheduleNurture(email, scored.tier, topIdea)
 
       // g. Route to results
       navigate('/assess/results')
-    } catch {
-      setError('Something went wrong. Please try again.')
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : ''
+      if (msg.toLowerCase().includes('resend') || msg.toLowerCase().includes('send') || msg.toLowerCase().includes('email')) {
+        setError("We couldn't send your results. Please check your email address and try again.")
+      } else {
+        setError('Something went wrong. Please try again.')
+      }
       setLoading(false)
     }
   }
