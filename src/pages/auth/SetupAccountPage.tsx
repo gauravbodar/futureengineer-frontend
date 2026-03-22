@@ -18,6 +18,7 @@ export default function SetupAccountPage() {
   const token = params.get('token') ?? ''
 
   const [status, setStatus] = useState<Status>({ kind: 'loading' })
+  const [tokenEmail, setTokenEmail] = useState('')
   const [displayName, setDisplayName] = useState('')
   const [password, setPassword] = useState('')
   const [confirm, setConfirm] = useState('')
@@ -37,7 +38,10 @@ export default function SetupAccountPage() {
         if (!res.ok) throw new Error('Unable to verify your setup link. Please try again.')
         return res.json() as Promise<{ email: string; tier: string }>
       })
-      .then(({ email, tier }) => setStatus({ kind: 'ready', email, tier }))
+      .then(({ email, tier }) => {
+        setTokenEmail(email)
+        setStatus({ kind: 'ready', email, tier })
+      })
       .catch((err: Error) => setStatus({ kind: 'invalid', message: err.message }))
   }, [token])
 
@@ -45,7 +49,9 @@ export default function SetupAccountPage() {
     e.preventDefault()
     if (status.kind !== 'ready') return
 
-    const { email } = status
+    // Use tokenEmail — single source of truth from verify-setup-token response.
+    // Never read email from the input field; it is read-only and reflects tokenEmail.
+    const email = tokenEmail
 
     // Client-side validation
     if (!displayName.trim()) {
@@ -181,7 +187,7 @@ export default function SetupAccountPage() {
   }
 
   // ── Setup form (ready + submitting + error) ────────────────────────────────
-  const email = status.kind === 'ready' ? status.email : ''
+  // tokenEmail persists across status transitions — bind to the read-only input
   const tier = status.kind === 'ready' ? status.tier : ''
   const isSubmitting = status.kind === 'submitting'
   const submitError = status.kind === 'error' ? status.message : null
@@ -228,7 +234,7 @@ export default function SetupAccountPage() {
             </label>
             <input
               type="email"
-              value={email}
+              value={tokenEmail}
               readOnly
               className="w-full px-4 py-3 rounded-xl border border-gray-100 bg-gray-50 font-body text-gray-500 text-base cursor-not-allowed"
             />
