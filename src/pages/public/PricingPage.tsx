@@ -1,7 +1,5 @@
 import { useState } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import { useAssessStore } from '../../store/assessStore'
-import { createCheckout } from '../../lib/api'
+import { Link, useLocation } from 'react-router-dom'
 
 const plans = [
   {
@@ -59,27 +57,37 @@ const plans = [
 
 export default function PricingPage() {
   const location = useLocation()
-  const navigate = useNavigate()
-  const { email, tier } = useAssessStore()
   const noticeFromState = (location.state as { notice?: string } | null)?.notice ?? null
   const [notice, setNotice] = useState<string | null>(noticeFromState)
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
-  const [checkoutError, setCheckoutError] = useState<string | null>(null)
 
-  const handlePaidCta = async (planId: 'creator_pro' | 'family') => {
-    setCheckoutError(null)
-    // If user hasn't done the assessment, send them there first
-    if (!email || !tier) {
-      navigate('/assess')
-      return
-    }
-    setLoadingPlan(planId)
+  const handleStartBuilding = async () => {
+    setLoadingPlan('creator_pro')
     try {
-      const { url } = await createCheckout(planId, email)
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/create-checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: 'creator_pro' })
+      })
+      const { url } = await res.json()
       window.location.href = url
     } catch {
-      setCheckoutError('Could not start checkout. Please try again.')
-      setLoadingPlan(null)
+      window.location.href = '/assess'
+    }
+  }
+
+  const handleFamily = async () => {
+    setLoadingPlan('family')
+    try {
+      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/create-checkout`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ plan: 'family' })
+      })
+      const { url } = await res.json()
+      window.location.href = url
+    } catch {
+      window.location.href = '/assess'
     }
   }
 
@@ -168,7 +176,7 @@ export default function PricingPage() {
               {/* CTA */}
               {plan.planId ? (
                 <button
-                  onClick={() => handlePaidCta(plan.planId!)}
+                  onClick={() => plan.planId === 'creator_pro' ? handleStartBuilding() : handleFamily()}
                   disabled={loadingPlan === plan.planId}
                   className={`mt-auto w-full py-3 rounded-xl font-body font-bold text-center text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                     plan.highlight
@@ -200,10 +208,6 @@ export default function PricingPage() {
             </div>
           ))}
         </div>
-
-        {checkoutError && (
-          <p className="text-center font-body text-red-500 text-sm mt-4">{checkoutError}</p>
-        )}
 
         {/* FAQ micro-copy */}
         <p className="text-center font-body text-gray-400 text-sm mt-10">
