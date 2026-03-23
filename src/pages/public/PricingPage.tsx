@@ -61,32 +61,24 @@ export default function PricingPage() {
   const [notice, setNotice] = useState<string | null>(noticeFromState)
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
 
-  const handleStartBuilding = async () => {
-    setLoadingPlan('creator_pro')
+  const handleCheckout = async (plan: 'creator_pro' | 'family') => {
+    setLoadingPlan(plan)
     try {
       const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/create-checkout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: 'creator_pro' })
+        body: JSON.stringify({ plan })
       })
-      const { url } = await res.json()
-      window.location.href = url
+      const data = await res.json()
+      const stripeUrl = data.url || data.sessionUrl || data.checkoutUrl
+      if (!stripeUrl || !stripeUrl.startsWith('https://')) {
+        console.error('Invalid checkout URL:', data)
+        setLoadingPlan(null)
+        return
+      }
+      window.location.href = stripeUrl
     } catch {
-      window.location.href = '/assess'
-    }
-  }
-
-  const handleFamily = async () => {
-    setLoadingPlan('family')
-    try {
-      const res = await fetch(`${import.meta.env.VITE_API_BASE_URL}/api/create-checkout`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan: 'family' })
-      })
-      const { url } = await res.json()
-      window.location.href = url
-    } catch {
+      setLoadingPlan(null)
       window.location.href = '/assess'
     }
   }
@@ -176,7 +168,7 @@ export default function PricingPage() {
               {/* CTA */}
               {plan.planId ? (
                 <button
-                  onClick={() => plan.planId === 'creator_pro' ? handleStartBuilding() : handleFamily()}
+                  onClick={() => handleCheckout(plan.planId!)}
                   disabled={loadingPlan === plan.planId}
                   className={`mt-auto w-full py-3 rounded-xl font-body font-bold text-center text-sm transition-all disabled:opacity-50 disabled:cursor-not-allowed ${
                     plan.highlight
