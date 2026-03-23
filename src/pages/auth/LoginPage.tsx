@@ -1,14 +1,10 @@
 import { useState, type FormEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 import { supabase } from '../../lib/supabase'
-import { useAuthStore } from '../../store/authStore'
 
 const PORTAL = 'https://app.futureengineracademy.com'
 
 export default function LoginPage() {
-  const navigate = useNavigate()
-  const { signIn } = useAuthStore()
-
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
@@ -20,55 +16,27 @@ export default function LoginPage() {
     setLoading(true)
 
     try {
-      // 1. Authenticate — signIn updates the Zustand store; errors thrown here
-      //    are caught below and shown inline, never surfaced as unhandled exceptions.
-      await signIn(email, password)
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({ email, password })
 
-      // 2. Session is now in the store (Zustand set() is synchronous)
-      const { user, session } = useAuthStore.getState()
-
-      if (!user || !session) {
-        throw new Error('Sign-in succeeded but no session was returned.')
-      }
-
-      // 3. Check subscription status.  The user's JWT is already set on the
-      //    supabase client after signIn, so this query runs under their identity.
-      const { data: sub, error: subError } = await supabase
-        .from('subscriptions')
-        .select('status')
-        .eq('user_id', user.id)
-        .maybeSingle()
-
-      if (subError) {
-        // Network / RLS failure — don't redirect to portal blindly
-        throw new Error('Could not verify subscription. Please try again.')
-      }
-
-      if (sub?.status === 'active') {
-        // 4a. Active subscriber — hand off the session cross-domain via URL fragment.
-        //     The portal's Supabase client (detectSessionInUrl: true by default) reads
-        //     access_token + refresh_token from the hash and calls setSession() on init.
-        const fragment = new URLSearchParams({
-          access_token: session.access_token,
-          refresh_token: session.refresh_token,
-          token_type: 'bearer',
-          expires_in: String(session.expires_in ?? 3600),
-        }).toString()
-
-        window.location.href = `${PORTAL}#${fragment}`
-        // Don't setLoading(false) — the page is navigating away
+      if (signInError || !data.session) {
+        setError('Invalid email or password.')
         return
       }
 
-      // 4b. Account exists but subscription is inactive / missing
-      navigate('/pricing', {
-        replace: true,
-        state: { notice: 'Your account exists but has no active subscription.' },
-      })
-    } catch (err: unknown) {
-      const message =
-        err instanceof Error ? err.message : 'Invalid email or password'
-      setError(message)
+      // Pass the session cross-domain via URL fragment — the portal's Supabase
+      // client reads access_token + refresh_token from the hash on init.
+      const { session } = data
+      const fragment = new URLSearchParams({
+        access_token: session.access_token,
+        refresh_token: session.refresh_token,
+        token_type: 'bearer',
+        expires_in: String(session.expires_in ?? 3600),
+      }).toString()
+
+      window.location.href = `${PORTAL}#${fragment}`
+      // Don't setLoading(false) — page is navigating away
+    } catch {
+      setError('Invalid email or password.')
     } finally {
       setLoading(false)
     }
