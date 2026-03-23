@@ -23,17 +23,14 @@ export default function LoginPage() {
         return
       }
 
-      // Pass the session cross-domain via URL fragment — the portal's Supabase
-      // client reads access_token + refresh_token from the hash on init.
+      // Pass session tokens to the portal's auth callback so it can call
+      // setSession() under its own domain's Supabase client storage.
       const { session } = data
-      const fragment = new URLSearchParams({
-        access_token: session.access_token,
-        refresh_token: session.refresh_token,
-        token_type: 'bearer',
-        expires_in: String(session.expires_in ?? 3600),
-      }).toString()
+      const redirectUrl = new URL(`${PORTAL}/auth/callback`)
+      redirectUrl.searchParams.set('access_token', session.access_token)
+      redirectUrl.searchParams.set('refresh_token', session.refresh_token)
 
-      window.location.href = `${PORTAL}#${fragment}`
+      window.location.href = redirectUrl.toString()
       // Don't setLoading(false) — page is navigating away
     } catch {
       setError('Invalid email or password.')
